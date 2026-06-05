@@ -60,10 +60,23 @@ jobs:
         with:
           name: out
           path: out
-      - uses: actions/configure-pages@v4
-      - uses: actions/upload-pages-artifact@v1
+      - uses: actions/configure-pages@v5
+        with:
+          static_site_generator: next
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: out
+
+  deploy:
+    needs: pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
 
   screenshot:
     needs: build
