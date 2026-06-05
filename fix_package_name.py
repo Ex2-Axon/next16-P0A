@@ -3,8 +3,8 @@
 Check and optionally fix the `name` field in package.json to match the repository folder name.
 
 Usage:
-  python tools/2_fix_package_name.py --root .         # shows suggested name
-  python tools/2_fix_package_name.py --root . --apply # backup package.json and writes change
+  python tools/fix_package_name.py --root .         # shows suggested name
+  python tools/fix_package_name.py --root . --apply # backup package.json and writes change
 
 The expected package name is derived from the repository folder name and
 sanitized to a safe npm-style name (lowercase, dashes, digits, dots, underscores).
