@@ -86,6 +86,42 @@ Key files and folders:
 - [Privacy Policy](https://microtronic-thailand.github.io/privacy-policy/?lang=en)
 - [Terms of Service](https://microtronic-thailand.github.io/terms-conditions/)
 
+## Screenshot Automation
+
+This repo includes a ready-to-use screenshot script using Playwright. It captures the live page and saves it to `screenshot.png`.
+
+Run locally with:
+
+```bash
+pnpm install
+node screenshot.js https://next16-p0a.vercel.app screenshot.png
+```
+
+Or use the package script:
+
+```bash
+pnpm screenshot
+```
+
+If you want to target a different URL, pass it as the first argument:
+
+```bash
+node screenshot.js https://your-deployment-url.vercel.app output.png
+```
+
+This also supports CI automation by setting the `SCREENSHOT_URL` environment variable.
+
+### GitHub Actions Artifact Workflow
+
+A workflow file is included at `.github/workflows/screenshot.yml` that will:
+
+- install dependencies with `pnpm`
+- install Playwright Chromium
+- capture the screenshot from the configured deployment URL
+- upload the screenshot as a workflow artifact
+
+You can configure the deployment URL with a repository secret named `SCREENSHOT_URL`.
+
 ## Deployment
 
 Deploy this app on Vercel or any platform that supports Next.js 16 applications.
