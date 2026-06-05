@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Create .github directory (if missing) and validate folder/path references in repository files.
+Create .github and .github/screenshot directories (if missing), and validate folder/path references in repository files.
 
 Usage:
-  python tools/validate_and_create_github.py --root .              # report only
-  python tools/validate_and_create_github.py --root . --apply    # apply suggested fixes
+  python 1_validate_and_create_github.py          # report only, default root is script directory
+  python 1_validate_and_create_github.py --root . --apply    # apply suggested fixes
 
 This script scans source files for quoted path-like strings (./, ../, /, C:\\) and
 verifies the referenced directories exist. If a referenced directory is missing,
@@ -21,31 +21,155 @@ import re
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
+IGNORE_DIRS = {'.git', 'node_modules', '.next', 'out', 'dist', 'venv', '.github'}
+PATH_REGEX = re.compile(r'(?P<quote>["\'`])(?P<path>(?:[A-Za-z]:\\|[A-Za-z]:/|\\\\|/|\.\.?/|\.\\)[^"\'`\s]+)(?P=quote)')
 
-PATH_REGEX = re.compile(r'(?P<quote>["\'`])(?P<path>(?:[A-Za-z]:\\|[A-Za-z]:/|\\|/|\.\.?/|\.\\)[^"\'`\s]+)(?P=quote)')
+WORKFLOW_CONTENT = """name: Build and deploy GitHub Pages with screenshot
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - run: pnpm install
+      - run: pnpm build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: out
+          path: out
+
+  pages:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: out
+          path: out
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: out
+
+  screenshot:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - run: pnpm install
+      - run: pnpm exec playwright install chromium
+      - run: node .github/scripts/screenshot.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshot
+          path: .github/screenshot
+"""
+
+SCREENSHOT_SCRIPT_CONTENT = """const { chromium } = require('playwright');
+const { resolve } = require('path');
+const { existsSync, mkdirSync } = require('fs');
+
+(async () => {
+  const repoRoot = resolve(__dirname, '..');
+  const outIndex = resolve(repoRoot, 'out', 'index.html');
+
+  if (!existsSync(outIndex)) {
+    console.error('Missing build output:', outIndex);
+    process.exit(1);
+  }
+
+  mkdirSync(resolve(repoRoot, '.github', 'screenshot'), { recursive: true });
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  const outUrl = `file:///${outIndex.replace(/\\\\/g, '/')}`;
+  await page.goto(outUrl);
+  await page.waitForLoadState('networkidle');
+  await page.screenshot({ path: resolve(repoRoot, '.github', 'screenshot', 'homepage.png'), fullPage: false });
+  await browser.close();
+  console.log('Saved screenshot to', resolve(repoRoot, '.github', 'screenshot'));
+})();
+"""
 
 
 def ensure_github_dir(root: Path) -> Path:
     github_dir = root / '.github'
+    screenshot_dir = github_dir / 'screenshot'
     if not github_dir.exists():
         github_dir.mkdir(parents=True, exist_ok=True)
         print(f'Created {github_dir}')
     else:
         print(f'{github_dir} exists')
+
+    if not screenshot_dir.exists():
+        screenshot_dir.mkdir(parents=True, exist_ok=True)
+        print(f'Created {screenshot_dir}')
+    else:
+        print(f'{screenshot_dir} exists')
+
     return github_dir
 
 
+def ensure_github_workflow(root: Path) -> None:
+    workflow_dir = root / '.github' / 'workflows'
+    script_dir = root / '.github' / 'scripts'
+    workflow_dir.mkdir(parents=True, exist_ok=True)
+    script_dir.mkdir(parents=True, exist_ok=True)
+
+    workflow_file = workflow_dir / 'deploy-and-screenshot.yml'
+    if not workflow_file.exists():
+        workflow_file.write_text(WORKFLOW_CONTENT, encoding='utf-8')
+        print(f'Created {workflow_file}')
+    else:
+        print(f'{workflow_file} exists')
+
+    screenshot_script = script_dir / 'screenshot.js'
+    if not screenshot_script.exists():
+        screenshot_script.write_text(SCREENSHOT_SCRIPT_CONTENT, encoding='utf-8')
+        print(f'Created {screenshot_script}')
+    else:
+        print(f'{screenshot_script} exists')
+
+
 def collect_dirs(root: Path, exclude: Optional[Set[str]] = None) -> List[Path]:
-    exclude = exclude or {'.git', 'node_modules', '.next', 'out', 'dist', 'venv'}
+    exclude = exclude or IGNORE_DIRS
     dirs = []
     for dirpath, dirnames, _ in os.walk(root):
         parts = Path(dirpath).parts
         if any(p in exclude for p in parts):
-            # prune by clearing dirnames
             dirnames[:] = []
             continue
         dirs.append(Path(dirpath))
     return dirs
+
+
+def is_likely_path(path: str) -> bool:
+    # exclude common regex escapes and single-char backslash escapes
+    if len(path) <= 2 and path.startswith('\\'):
+        return False
+    if re.search(r'\\[abfnrtv0-9xuU]', path):
+        return False
+    if re.search(r'\\[dswW]', path):
+        return False
+    if any(ch in path for ch in '{}[]^$*+?'):
+        return False
+    return True
 
 
 def find_path_strings(text: str) -> List[Tuple[str, str]]:
@@ -54,6 +178,8 @@ def find_path_strings(text: str) -> List[Tuple[str, str]]:
     for m in PATH_REGEX.finditer(text):
         q = m.group('quote')
         p = m.group('path')
+        if not is_likely_path(p):
+            continue
         results.append((q, p))
     return results
 
@@ -66,13 +192,25 @@ def resolve_candidate(path_str: str, file_dir: Path, repo_root: Path) -> Optiona
     p_norm = p.replace('\\', os.sep).replace('/', os.sep)
     # If it's an absolute Windows path like C:\ or starts with drive
     if re.match(r'^[A-Za-z]:\\', p) or re.match(r'^[A-Za-z]:/', p):
-        return Path(p_norm)
-    # If starts with os.sep (rooted path), treat as repo-root relative
-    if p_norm.startswith(os.sep):
+        cand = Path(p_norm)
+    elif p_norm.startswith(os.sep):
         cand = repo_root.joinpath(p_norm.lstrip(os.sep))
+    else:
+        cand = (file_dir / p_norm).resolve()
+
+    if cand.exists():
         return cand
-    # Otherwise resolve relative to the file directory
-    return (file_dir / p_norm).resolve()
+
+    # For JS/TS-style imports without extension, try common extensions and index files
+    if cand.suffix == '':
+        for ext in ['.ts', '.tsx', '.js', '.jsx', '.json', '.mdx', '.md']:
+            if cand.with_suffix(ext).exists():
+                return cand.with_suffix(ext)
+        for ext in ['.ts', '.tsx', '.js', '.jsx', '.json', '.mdx', '.md']:
+            index_path = cand / f'index{ext}'
+            if index_path.exists():
+                return index_path
+    return cand
 
 
 def find_best_dir_match(missing_dir: Path, dir_list: List[Path], max_suggestions: int = 3) -> List[Path]:
@@ -158,15 +296,20 @@ def main() -> int:
         return 2
 
     ensure_github_dir(repo_root)
+    ensure_github_workflow(repo_root)
 
     dir_list = collect_dirs(repo_root)
 
-    # gather candidate files
+    # gather candidate files while skipping ignored directories
     files = []
-    for ext in args.ext:
-        files.extend(repo_root.rglob(f'*{ext}'))
-
-    files = [f for f in files if '.git' not in f.parts and 'node_modules' not in f.parts]
+    extensions = set(args.ext)
+    for dirpath, dirnames, filenames in os.walk(repo_root):
+        if any(p in IGNORE_DIRS for p in Path(dirpath).parts):
+            dirnames[:] = []
+            continue
+        for filename in filenames:
+            if Path(filename).suffix in extensions:
+                files.append(Path(dirpath) / filename)
 
     total_changed = 0
     all_suggestions: Dict[Path, List[str]] = {}
