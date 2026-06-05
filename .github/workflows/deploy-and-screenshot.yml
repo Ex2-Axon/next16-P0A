@@ -1,0 +1,74 @@
+name: Build, Screenshot, Deploy (GitHub Pages + Vercel)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Next.js
+        run: pnpm build
+
+      - name: Export static site
+        run: npx next export
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./out
+
+      - name: Serve exported site
+        run: |
+          npm i -g http-server
+          nohup http-server out -p 3000 >/dev/null 2>&1 &
+          sleep 2
+
+      - name: Install Playwright (for screenshot)
+        run: |
+          npm i -g playwright
+          playwright install --with-deps
+
+      - name: Capture screenshot
+        run: node .github/scripts/screenshot.js http://localhost:3000
+
+      - name: Commit screenshot
+        env:
+          GITHUB_ACTOR: github-actions[bot]
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "41898282+${GITHUB_ACTOR}@users.noreply.github.com"
+          git add .github/screenshot || true
+          git commit -m "Add site screenshot [ci skip]" || echo "No changes to commit"
+          git push
+
+      - name: Deploy to Vercel
+        if: ${{ secrets.VERCEL_TOKEN != '' }}
+        run: |
+          npm i -g vercel
+          vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm
