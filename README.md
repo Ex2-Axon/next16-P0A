@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# next16-P0A
+
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.7-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v4-blue?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+[![pnpm](https://img.shields.io/badge/pnpm-%5E%20latest-0066CC?style=flat-square&logo=pnpm)](https://pnpm.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-%5E5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+
+A modern Next.js 16 master template built with the App Router, Tailwind CSS v4, Framer Motion, and Lucide React.
+
+## Project Overview
+
+This project is configured with:
+
+- `next` 16.2.7
+- `react` 19.2.4
+- `tailwindcss` v4
+- `framer-motion` 12.40.0
+- `lucide-react` ^1.17.0
+- `pnpm` as the package manager
+
+The app is organized using the root `app/` directory and follows the latest Next.js App Router conventions.
+
+## Features
+
+- Responsive mobile-first landing page
+- Custom component structure in `app/components/`
+- Fixed bottom cookie banner with privacy actions
+- Modern UI using Tailwind CSS and animated interactions
+- Social links and donation/payment callouts built into the page flow
 
 ## Getting Started
 
-First, run the development server:
+Use `pnpm` for all package management and scripts.
+
+Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run the development server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-## Learn More
+Build for production:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Start the production server:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm start
+```
 
-## Deploy on Vercel
+Run linting:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm lint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## App Structure
+
+Key files and folders:
+
+- `app/page.tsx` – main landing page UI
+- `app/layout.tsx` – root layout for the app
+- `app/globals.css` – global Tailwind and CSS styles
+- `app/components/` – reusable components like `CookieBanner`, `Footer`, and hero sections
+
+## Notes
+
+- Avoid using npm or yarn commands for this project; use `pnpm` exclusively.
+- This repository uses the Next.js App Router pattern and does not use the legacy `pages/` or `src/` routes.
+
+## Related Links
+
+- [Micro Donate & Payment](https://microtronic-thailand.github.io/micro-payment/)
+- [Microtronic Thailand](https://microtronic.biz/)
+- [Privacy Policy](https://microtronic-thailand.github.io/privacy-policy/?lang=en)
+- [Terms of Service](https://microtronic-thailand.github.io/terms-conditions/)
+
+## Deployment
+
+Deploy this app on Vercel or any platform that supports Next.js 16 applications.
+
+For Vercel, follow the official guide: https://nextjs.org/docs/app/building-your-application/deploying
