@@ -39,3 +39,24 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+fix_env.py 
+fix_origin.py 
+fix_package_name.py 
+fix_screenshot.py 
+fix_tsconfig.py 
+fix-run-dev.py 
+github_create.py 
+github_pull.py 
+github_push.py 
+github_sync.py 
+github_ui.py 
+github_update.py

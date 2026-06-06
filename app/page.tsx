@@ -1,6 +1,6 @@
 import AnimatedHero from "./components/AnimatedHero";
 import CookieBanner from "./components/CookieBanner";
-import Footer from "./components/Footer";
+import RemoteFooter from "./components/RemoteFooter";
 import { ArrowRight, CircleDollarSign, ShieldCheck, Sparkles, Users } from "lucide-react";
 
 const featureCards = [
@@ -109,7 +109,7 @@ export default function Home() {
         </section>
       </div>
 
-      <Footer />
+      <RemoteFooter />
       <CookieBanner />
     </main>
   );

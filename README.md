@@ -29,6 +29,10 @@ The app is organized using the root `app/` directory and follows the latest Next
 - Modern UI using Tailwind CSS and animated interactions
 - Social links and donation/payment callouts built into the page flow
 
+## Preview
+
+![next16-P0A screenshot](./screenshot.png)
+
 ## Getting Started
 
 Use `pnpm` for all package management and scripts.

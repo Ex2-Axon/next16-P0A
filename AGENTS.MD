@@ -37,6 +37,13 @@ The Cookie Banner must include the following elements:
 - Responsiveness: Must look clean on both desktop and mobile viewports.
 - Behavior: Include basic JavaScript/Logic so that clicking "Accept All", "Reject All", or "X" will hide the banner.
 
+# TAILWIND CSS V4 THEMING & STYLING STANDARDS
+To ensure theme stability and prevent hardcoded styling across components:
+1. **No Hardcoded/Arbitrary Theme Colors**: DO NOT write custom hex/rgb colors inline or as arbitrary Tailwind classes (e.g., `bg-[#ffffff]`, `text-[#121212]`, `border-[#eaeaea]`).
+2. **Centralized Theme Definition**: Configure all theme colors (primary, secondary, background, foreground, border, accent, etc.) in a single source of truth in `app/globals.css` using Tailwind v4's `@theme` directive.
+3. **CSS Variables & Dark Mode**: Define theme tokens as CSS variables in `:root` and override them in `@media (prefers-color-scheme: dark)` or `.dark` class, then bind them under the `@theme` directive in CSS.
+4. **Use Semantic Classes**: Reference these tokens in components via standard semantic utilities (e.g., `bg-background`, `text-foreground`, `bg-primary`, `text-primary-hover`). Modifying a color in `app/globals.css` must seamlessly update all components.
+
 # ADDITIONAL CONTENT REQUIREMENTS
 
 ## Navbar หรือ Hero Component ให้เพิ่มข้อมูลต่อไปนี้เสมอ:
@@ -92,6 +99,10 @@ The Cookie Banner must include the following elements:
 > * Fully responsive design using a Mobile-First approach (looks seamless on Mobile, Tablet, and Desktop).
 > * Properly segregate Server Components and Client Components (`"use client"`) according to Next.js 16 architecture.
 > * Provide clean, self-contained code or clearly separated component structures.
+> * **Theming & Styling Standards (Tailwind CSS v4):**
+>   * **No Hardcoded Colors:** DO NOT use arbitrary colors (e.g., `bg-[#ffffff]`, `text-[#121212]`) in components.
+>   * **Single Source of Truth:** All colors and tokens must be defined in `app/globals.css` using `@theme` and custom CSS variables.
+>   * **Semantic Utilities:** Use tailwind utility classes corresponding to theme colors (`bg-primary`, `bg-background`, `text-foreground`, etc.).
 > 
 > 
 > ---
@@ -130,6 +141,10 @@ The Cookie Banner must include the following elements:
 * รองรับ Responsive Design (Mobile First) แสดงผลสมบูรณ์แบบทั้งบนสมาร์ตโฟน แท็บเล็ต และเดสก์ท็อป
 * แยก Client Component (`"use client"`) และ Server Component อย่างเหมาะสมตามสถาปัตยกรรมของ Next.js 16
 * เขียนโค้ดรวมมาในไฟล์ที่พร้อมใช้งาน หรือแยก Component ย่อยให้ชัดเจนเข้าใจง่าย
+* **มาตรฐานการกำหนด Theme และ CSS (Tailwind CSS v4):**
+  * **ห้ามใช้สี Hardcoded/Arbitrary:** ห้ามเขียนค่าสีเองใน Class เช่น `bg-[#ffffff]` หรือ `text-[#121212]` หรือระบุ Hex/RGB ใน Code โดยตรง
+  * **จุดรวมศูนย์กลางของ Theme (Single Source of Truth):** กำหนดสีหลัก สีรอง สีพื้นหลัง และสีข้อความทั้งหมดผ่านไฟล์ `app/globals.css` โดยใช้ `@theme` และ CSS Variables
+  * **เรียกใช้ผ่าน Semantic Class:** ใช้ Class สำเร็จรูปที่ดึงจาก Theme เสมอ (เช่น `bg-primary`, `bg-background`, `text-foreground`) เพื่อให้แก้ไขสีที่ globals.css ที่เดียวแล้วมีผลทั้งระบบ
 
 **Prompt Context (รายละเอียดหน้า UI ที่ต้องการให้สร้าง):**
 [ใส่รายละเอียด หรือเนื้อหาของหน้าเว็บที่คุณต้องการให้ AI สร้าง ตรงนี้ได้เลยครับ เช่น: หน้า Landing Page สำหรับขายคอร์สออนไลน์ มีส่วน Hero, Features, และ Pricing]

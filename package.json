@@ -1,5 +1,5 @@
 {
-  "name": "next16",
+  "name": "next16-p0a",
   "version": "p.0.a",
   "private": true,
   "scripts": {
@@ -23,7 +23,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
-    "playwright": "^1.44.0",
+    "playwright": "^1.60.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
