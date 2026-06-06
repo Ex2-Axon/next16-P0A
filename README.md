@@ -78,6 +78,23 @@ Key files and folders:
 - `app/globals.css` – global Tailwind and CSS styles
 - `app/components/` – reusable components like `CookieBanner`, `Footer`, and hero sections
 
+## Shared Remote UI
+
+This frontend consumes shared UI metadata from the remote API server at `https://next16-p0-a-api.vercel.app`.
+The remote API is the source of truth for the site-wide `navbar` and `footer`, so all deployments can use the same purchase link structure, privacy policy, terms, and copyright details.
+Use the `SERVER_API_URL` environment variable to point to the API server in production.
+
+### Example: set SERVER_API_URL
+
+Create a `.env.local` in the project root with:
+
+```bash
+SERVER_API_URL=https://next16-p0-a-api.vercel.app
+NEXT_PUBLIC_SERVER_API_URL=https://next16-p0-a-api.vercel.app
+```
+
+On Vercel, set `SERVER_API_URL` (server-only) and `NEXT_PUBLIC_SERVER_API_URL` (public) in your project Environment Variables.
+
 ## Notes
 
 - Avoid using npm or yarn commands for this project; use `pnpm` exclusively.

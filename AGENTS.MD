@@ -49,6 +49,7 @@ To ensure theme stability and prevent hardcoded styling across components:
 ## Navbar หรือ Hero Component ให้เพิ่มข้อมูลต่อไปนี้เสมอ:
 
 - เพิ่ม [Micro Donate&Payment](https://microtronic-thailand.github.io/micro-payment/) ที่ navbar หรือ ถ้าไม่มี navbar ให้เพิ่มที่ hero component แทน เสมอ
+- ใช้ `navbar` และ `footer` จาก API server ทั้งหมด อย่าสร้าง navbar/footer ไว้ใน frontend แต่ละเว็บเอง
 
 ## Content & Component อื่นๆ ให้สร้างได้ตามความพอใจ:
 

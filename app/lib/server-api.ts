@@ -19,17 +19,6 @@ export async function fetchRemoteComponent(slug: string) {
   return payload?.data?.component ?? null;
 }
 
-export async function fetchRemoteRenderedComponent(slug: string) {
-  const response = await fetch(`${apiBaseUrl}/api/components/${slug}/render`, {
-    next: { revalidate: 30 },
-    headers: { Accept: "application/json" },
-  });
-
-  if (!response.ok) return null;
-  const payload = await response.json();
-  return payload?.renderHtml ?? null;
-}
-
 export function getServerApiUrl() {
   return apiBaseUrl;
 }
