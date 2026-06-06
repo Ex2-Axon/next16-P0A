@@ -1,7 +1,7 @@
 const apiBaseUrl =
   process.env.SERVER_API_URL ||
   process.env.NEXT_PUBLIC_SERVER_API_URL ||
-  "http://localhost:3010";
+  "https://next16-p0-a-api.vercel.app";
 
 export async function fetchRemoteComponent(slug: string) {
   const response = await fetch(`${apiBaseUrl}/api/components/${slug}`, {
