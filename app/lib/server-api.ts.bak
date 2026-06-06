@@ -1,3 +1,4 @@
+// backup of previous server-api.ts
 const apiBaseUrl =
   process.env.SERVER_API_URL ||
   process.env.NEXT_PUBLIC_SERVER_API_URL ||
@@ -17,17 +18,6 @@ export async function fetchRemoteComponent(slug: string) {
 
   const payload = await response.json();
   return payload?.data?.component ?? null;
-}
-
-export async function fetchRemoteRenderedComponent(slug: string) {
-  const response = await fetch(`${apiBaseUrl}/api/components/${slug}/render`, {
-    next: { revalidate: 30 },
-    headers: { Accept: "application/json" },
-  });
-
-  if (!response.ok) return null;
-  const payload = await response.json();
-  return payload?.renderHtml ?? null;
 }
 
 export function getServerApiUrl() {
